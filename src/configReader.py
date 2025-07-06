@@ -1,20 +1,3 @@
-"""
-    Unibot, an open-source colorbot.
-    Copyright (C) 2025 vike256
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-"""
 from configparser import ConfigParser
 import numpy as np
 import os
@@ -24,11 +7,9 @@ class ConfigReader:
     def __init__(self):
         self.parser = ConfigParser()
 
-        # La section Communication a été supprimée
         # Screen
         self.detection_threshold = None
-        self.upper_color = None
-        self.lower_color = None
+        # self.upper_color et self.lower_color ont été supprimés
         self.fov_x = None
         self.fov_y = None
         self.aim_fov_x = None
@@ -37,6 +18,20 @@ class ConfigReader:
         self.auto_detect_resolution = None
         self.resolution_x = None
         self.resolution_y = None
+
+        # Detection (Nouvelle section)
+        self.health_bar_lower_color_1 = None
+        self.health_bar_upper_color_1 = None
+        self.health_bar_lower_color_2 = None
+        self.health_bar_upper_color_2 = None
+        self.health_bar_aspect_ratio = None
+        self.health_bar_min_area = None
+        self.health_bar_max_area = None
+        self.player_outline_lower_color_1 = None
+        self.player_outline_upper_color_1 = None
+        self.player_outline_lower_color_2 = None
+        self.player_outline_upper_color_2 = None
+        self.roi_height_multiplier = None
 
         # Aim
         self.offset = None
@@ -60,8 +55,6 @@ class ConfigReader:
         # Rapid fire
         self.target_cps = None
 
-        # La section Key binds a été supprimée
-
         # Debug
         self.debug = None
         self.debug_always_on = None
@@ -72,96 +65,75 @@ class ConfigReader:
         self.parser.read(self.path)
 
     def read_config(self):
-        # La lecture des paramètres de communication a été supprimée.
+        # --- Helper function pour parser les couleurs ---
+        def parse_color(color_str):
+            parts = color_str.split(',')
+            return np.array([int(p.strip()) for p in parts])
 
-        # Get screen settings
+        # --- Get screen settings ---
         values_str = self.parser.get('screen', 'detection_threshold').split(',')
         self.detection_threshold = (int(values_str[0].strip()), int(values_str[1].strip()))
 
-        upper_color = self.parser.get('screen', 'upper_color').split(',')
-        lower_color = self.parser.get('screen', 'lower_color').split(',')
-        for i in range(0, 3):
-            upper_color[i] = int(upper_color[i].strip())
-        for i in range(0, 3):
-            lower_color[i] = int(lower_color[i].strip())
-        self.upper_color = np.array(upper_color)
-        self.lower_color = np.array(lower_color)
+        # Les anciennes lignes pour upper_color et lower_color ont été supprimées
 
-        self.fov_x = int(self.parser.get('screen', 'fov_x'))
-        self.fov_y = int(self.parser.get('screen', 'fov_y'))
-        self.aim_fov_x = int(self.parser.get('screen', 'aim_fov_x'))
-        self.aim_fov_y = int(self.parser.get('screen', 'aim_fov_y'))
-        fps_value = int(self.parser.get('screen', 'fps'))
+        self.fov_x = self.parser.getint('screen', 'fov_x')
+        self.fov_y = self.parser.getint('screen', 'fov_y')
+        self.aim_fov_x = self.parser.getint('screen', 'aim_fov_x')
+        self.aim_fov_y = self.parser.getint('screen', 'aim_fov_y')
+        fps_value = self.parser.getint('screen', 'fps')
         self.fps = int(np.floor(1000 / fps_value + 1))
+        self.auto_detect_resolution = self.parser.getboolean('screen', 'auto_detect_resolution')
+        self.resolution_x = self.parser.getint('screen', 'resolution_x')
+        self.resolution_y = self.parser.getint('screen', 'resolution_y')
 
-        value = self.parser.get('screen', 'auto_detect_resolution').lower()
-        if value == 'true':
-            self.auto_detect_resolution = True
-        else:
-            self.auto_detect_resolution = False
+        # --- Get detection settings ---
+        self.health_bar_lower_color_1 = parse_color(self.parser.get('detection', 'health_bar_lower_color_1'))
+        self.health_bar_upper_color_1 = parse_color(self.parser.get('detection', 'health_bar_upper_color_1'))
+        self.health_bar_lower_color_2 = parse_color(self.parser.get('detection', 'health_bar_lower_color_2'))
+        self.health_bar_upper_color_2 = parse_color(self.parser.get('detection', 'health_bar_upper_color_2'))
 
-        self.resolution_x = int(self.parser.get('screen', 'resolution_x'))
-        self.resolution_y = int(self.parser.get('screen', 'resolution_y'))
+        self.health_bar_aspect_ratio = self.parser.getfloat('detection', 'health_bar_aspect_ratio')
+        self.health_bar_min_area = self.parser.getint('detection', 'health_bar_min_area')
+        self.health_bar_max_area = self.parser.getint('detection', 'health_bar_max_area')
 
-        # Get aim settings
-        self.offset = int(self.parser.get('aim', 'offset'))
+        self.player_outline_lower_color_1 = parse_color(self.parser.get('detection', 'player_outline_lower_color_1'))
+        self.player_outline_upper_color_1 = parse_color(self.parser.get('detection', 'player_outline_upper_color_1'))
+        self.player_outline_lower_color_2 = parse_color(self.parser.get('detection', 'player_outline_lower_color_2'))
+        self.player_outline_upper_color_2 = parse_color(self.parser.get('detection', 'player_outline_upper_color_2'))
 
-        value = float(self.parser.get('aim', 'smooth'))
+        self.roi_height_multiplier = self.parser.getfloat('detection', 'roi_height_multiplier')
+
+        # --- Get aim settings ---
+        self.offset = self.parser.getint('aim', 'offset')
+        value = self.parser.getfloat('aim', 'smooth')
         if 0 <= value <= 1:
             self.smooth = 1 - value / 1.25
         else:
             print('WARNING: Invalid smooth value')
-
-        self.speed = float(self.parser.get('aim', 'speed'))
-        self.y_speed = float(self.parser.get('aim', 'y_speed'))
-
-        value = float(self.parser.get('aim', 'aim_height'))
+        self.speed = self.parser.getfloat('aim', 'speed')
+        self.y_speed = self.parser.getfloat('aim', 'y_speed')
+        value = self.parser.getfloat('aim', 'aim_height')
         if 0 <= value <= 1:
             self.aim_height = value
         else:
             print('WARNING: Invalid aim_height value')
 
-        # Get recoil settings
-        value = self.parser.get('recoil', 'mode').lower()
-        recoil_mode_list = ['move', 'offset']
-        if value in recoil_mode_list:
-            self.recoil_mode = value
-        else:
-            print('WARNING: Invalid recoil_mode value')
+        # --- Get recoil settings ---
+        self.recoil_mode = self.parser.get('recoil', 'mode').lower()
+        self.recoil_x = self.parser.getfloat('recoil', 'recoil_x')
+        self.recoil_y = self.parser.getfloat('recoil', 'recoil_y')
+        self.max_offset = self.parser.getint('recoil', 'max_offset')
+        self.recoil_recover = self.parser.getfloat('recoil', 'recover')
 
-        self.recoil_x = float(self.parser.get('recoil', 'recoil_x'))
-        self.recoil_y = float(self.parser.get('recoil', 'recoil_y'))
-        self.max_offset = int(self.parser.get('recoil', 'max_offset'))
-        self.recoil_recover = float(self.parser.get('recoil', 'recover'))
+        # --- Get trigger settings ---
+        self.trigger_delay = self.parser.getint('trigger', 'trigger_delay')
+        self.trigger_randomization = self.parser.getint('trigger', 'trigger_randomization')
+        self.trigger_threshold = self.parser.getint('trigger', 'trigger_threshold')
 
-        # Get trigger settings
-        self.trigger_delay = int(self.parser.get('trigger', 'trigger_delay'))
-        self.trigger_randomization = int(self.parser.get('trigger', 'trigger_randomization'))
-        self.trigger_threshold = int(self.parser.get('trigger', 'trigger_threshold'))
+        # --- Get rapid fire settings ---
+        self.target_cps = self.parser.getint('rapid_fire', 'target_cps')
 
-        # Get rapid fire settings
-        self.target_cps = int(self.parser.get('rapid_fire', 'target_cps'))
-
-        # La lecture des keybinds a été supprimée.
-
-        # Get debug settings
-        value = self.parser.get('debug', 'enabled').lower()
-        if value == 'true':
-            self.debug = True
-        else:
-            self.debug = False
-
-        value = self.parser.get('debug', 'always_on').lower()
-        if value == 'true':
-            self.debug_always_on = True
-        else:
-            self.debug_always_on = False
-
-        value = self.parser.get('debug', 'display_mode').lower()
-        display_mode_list = ['game', 'mask']
-        if value in display_mode_list:
-            self.display_mode = value
-        else:
-            print('WARNING: Invalid display_mode value')
-
-# La fonction read_hex n'est plus utilisée et a été supprimée.
+        # --- Get debug settings ---
+        self.debug = self.parser.getboolean('debug', 'enabled')
+        self.debug_always_on = self.parser.getboolean('debug', 'always_on')
+        self.display_mode = self.parser.get('debug', 'display_mode').lower()
