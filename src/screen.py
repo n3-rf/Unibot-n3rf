@@ -19,6 +19,7 @@ import cv2
 import numpy as np
 import bettercam
 from pyautogui import size
+import time # Importer le module time pour calculer les FPS
 
 
 class Screen:
@@ -60,6 +61,9 @@ class Screen:
         self.img = None
         self.trigger_threshold = config.trigger_threshold
         self.aim_fov = (config.aim_fov_x, config.aim_fov_y)
+
+        # Initialisation des variables pour le calcul des FPS
+        self.prev_frame_time = 0
 
         # Setup debug display
         if self.debug:
@@ -163,6 +167,15 @@ class Screen:
         return region
 
     def debug_display(self, recoil_offset):
+        # --- Calcul des FPS ---
+        new_frame_time = time.time()
+        if self.prev_frame_time > 0:
+            fps = 1 / (new_frame_time - self.prev_frame_time)
+        else:
+            fps = 0 # Évite la division par zéro à la première image
+        self.prev_frame_time = new_frame_time
+        # --- Fin du calcul des FPS ---
+
         if self.display_mode == 'game':
             debug_img = self.img
         else:
@@ -227,6 +240,12 @@ class Screen:
             (255, 255, 255),
             1
         )
+
+        # --- Affichage du texte des FPS ---
+        fps_text = f"FPS: {int(fps)}"
+        cv2.putText(full_img, fps_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        # --- Fin de l'affichage des FPS ---
+
         full_img = cv2.resize(full_img, self.window_resolution)
         cv2.imshow(self.window_name, full_img)
         cv2.waitKey(1)

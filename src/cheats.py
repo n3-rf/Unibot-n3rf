@@ -15,8 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import win32api
-
+# win32api a été supprimé car il gérait les inputs.
 
 class Cheats:
     def __init__(self, config):
@@ -52,16 +51,17 @@ class Cheats:
             # Apply x and y to the move variables
             self.move_x, self.move_y = (x, y)
 
-    def apply_recoil(self, state, delta_time):
+    # La signature a été modifiée pour recevoir l'état du tir (is_shooting)
+    def apply_recoil(self, state, delta_time, is_shooting):
         if state and delta_time != 0:
             # Mode move just applies configured movement to the move values
-            if self.recoil_mode == 'move' and win32api.GetAsyncKeyState(0x01) < 0:
+            if self.recoil_mode == 'move' and is_shooting:
                 self.move_x += self.recoil_x * delta_time
                 self.move_y += self.recoil_y * delta_time
             # Mode offset moves the camera upward, so it aims below target
             elif self.recoil_mode == 'offset':
                 # Add recoil_y to the offset when mouse1 is down
-                if win32api.GetAsyncKeyState(0x01) < 0:
+                if is_shooting:
                     if self.recoil_offset < self.max_offset:
                         self.recoil_offset += self.recoil_y * delta_time
                         if self.recoil_offset > self.max_offset:

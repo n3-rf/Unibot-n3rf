@@ -15,7 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
-import win32api
+# win32api a été supprimé.
 from time import sleep
 
 from configReader import ConfigReader
@@ -26,57 +26,46 @@ class Utils:
         self.config = ConfigReader()
         self.reload_config()
 
-        self.delay = 0.25
-        self.key_reload_config = self.config.key_reload_config
-        self.key_toggle_aim = self.config.key_toggle_aim
-        self.key_toggle_recoil = self.config.key_toggle_recoil
-        self.key_exit = self.config.key_exit
-        self.key_trigger = self.config.key_trigger
-        self.key_rapid_fire = self.config.key_rapid_fire
-        self.aim_keys = self.config.aim_keys
+        # Les états sont initialisés à False par défaut.
         self.aim_state = False
         self.recoil_state = False
 
-    def check_key_binds(self):  # Return a boolean based on if the config needs to be reloaded
-        if win32api.GetAsyncKeyState(self.key_reload_config) < 0:
-            return True
+        # Les key_binds ont été retirés car ils dépendaient de win32api.
+        # Vous devrez gérer les changements d'état (toggles) via votre nouvelle méthode d'input.
 
-        if win32api.GetAsyncKeyState(self.key_toggle_aim) < 0:
-            self.aim_state = not self.aim_state
-            print("AIM: " + str(self.aim_state))
-            sleep(self.delay)
+    def check_for_updates(self):
+        """
+        TODO: Remplacez cette fonction par la logique de votre nouveau système d'input.
+        Cette fonction devrait mettre à jour les états comme self.aim_state, etc.
+        et retourner True si le programme doit être rechargé.
+        """
+        # Exemple de logique à implémenter :
+        # if my_input_handler.should_reload_config():
+        #     return True
+        # self.aim_state = my_input_handler.is_aim_toggled()
+        # self.recoil_state = my_input_handler.is_recoil_toggled()
 
-        if win32api.GetAsyncKeyState(self.key_toggle_recoil) < 0:
-            self.recoil_state = not self.recoil_state
-            print("RECOIL: " + str(self.recoil_state))
-            sleep(self.delay)
-        
-        if win32api.GetAsyncKeyState(self.key_exit) < 0:
-            print("Exiting")
-            exit(1)
-        return False
+        return False # Par défaut, on ne recharge pas la config.
 
     def reload_config(self):
         self.config.read_config()
 
     def get_aim_state(self):
-        if self.aim_state:
-            if self.aim_keys[0] == 'off':
-                return True
-            else:
-                for key in self.aim_keys:
-                    if win32api.GetAsyncKeyState(key) < 0:
-                        return True
-        return False
+        # TODO: Implémentez la logique pour savoir si l'aim doit être actif.
+        # Doit retourner True si la (ou les) touche(s) d'aim sont pressées.
+        return self.aim_state
 
     def get_trigger_state(self):
-        if win32api.GetAsyncKeyState(self.key_trigger) < 0:
-            return True
+        # TODO: Implémentez la logique pour savoir si le triggerbot doit être actif.
         return False
 
     def get_rapid_fire_state(self):
-        if win32api.GetAsyncKeyState(self.key_rapid_fire) < 0:
-            return True
+        # TODO: Implémentez la logique pour savoir si le rapid fire doit être actif.
+        return False
+
+    def is_shooting(self):
+        # TODO: Implémentez la logique pour savoir si l'utilisateur est en train de tirer.
+        # Ceci est nécessaire pour le recul.
         return False
 
     @staticmethod

@@ -24,12 +24,7 @@ class ConfigReader:
     def __init__(self):
         self.parser = ConfigParser()
 
-        # Communication
-        self.com_type = None
-        self.ip = None
-        self.port = None
-        self.com_port = None
-
+        # La section Communication a été supprimée
         # Screen
         self.detection_threshold = None
         self.upper_color = None
@@ -65,14 +60,7 @@ class ConfigReader:
         # Rapid fire
         self.target_cps = None
 
-        # Key binds
-        self.key_reload_config = None
-        self.key_toggle_aim = None
-        self.key_toggle_recoil = None
-        self.key_exit = None
-        self.key_trigger = None
-        self.key_rapid_fire = None
-        self.aim_keys = []
+        # La section Key binds a été supprimée
 
         # Debug
         self.debug = None
@@ -84,20 +72,7 @@ class ConfigReader:
         self.parser.read(self.path)
 
     def read_config(self):
-        # Get communication settings
-        value = self.parser.get('communication', 'type').lower()
-        com_type_list = ['none', 'driver', 'serial', 'socket']
-        if value in com_type_list:
-            self.com_type = value
-        else:
-            print('WARNING: Invalid com_type value')
-        
-        match self.com_type:
-            case 'socket':
-                self.ip = self.parser.get('communication', 'ip')
-                self.port = int(self.parser.get('communication', 'port'))
-            case 'serial':
-                self.com_port = self.parser.get('communication', 'com_port')
+        # La lecture des paramètres de communication a été supprimée.
 
         # Get screen settings
         values_str = self.parser.get('screen', 'detection_threshold').split(',')
@@ -167,20 +142,7 @@ class ConfigReader:
         # Get rapid fire settings
         self.target_cps = int(self.parser.get('rapid_fire', 'target_cps'))
 
-        # Get keybind settings
-        self.key_reload_config = read_hex(self.parser.get('key_binds', 'key_reload_config'))
-        self.key_toggle_aim = read_hex(self.parser.get('key_binds', 'key_toggle_aim'))
-        self.key_toggle_recoil = read_hex(self.parser.get('key_binds', 'key_toggle_recoil'))
-        self.key_exit = read_hex(self.parser.get('key_binds', 'key_exit'))
-        self.key_trigger = read_hex(self.parser.get('key_binds', 'key_trigger'))
-        self.key_rapid_fire = read_hex(self.parser.get('key_binds', 'key_rapid_fire'))
-        aim_keys_str = self.parser.get('key_binds', 'aim_keys')
-        if not aim_keys_str == 'off':
-            aim_keys_str = aim_keys_str.split(',')
-            for key in aim_keys_str:
-                self.aim_keys.append(read_hex(key))
-        else:
-            self.aim_keys = ['off']
+        # La lecture des keybinds a été supprimée.
 
         # Get debug settings
         value = self.parser.get('debug', 'enabled').lower()
@@ -202,6 +164,4 @@ class ConfigReader:
         else:
             print('WARNING: Invalid display_mode value')
 
-
-def read_hex(string):
-    return int(string, 16)
+# La fonction read_hex n'est plus utilisée et a été supprimée.

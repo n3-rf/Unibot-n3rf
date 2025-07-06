@@ -51,7 +51,8 @@ For details see <LICENSE.txt>.
             delta_time = time.time() - start_time
             start_time = time.time()
             
-            reload_config = utils.check_key_binds()
+            # check_key_binds a été remplacé par une fonction plus générique.
+            reload_config = utils.check_for_updates()
             if reload_config:
                 break
 
@@ -73,8 +74,9 @@ For details see <LICENSE.txt>.
             if utils.get_rapid_fire_state():
                 mouse.click()
 
-            # Apply recoil
-            cheats.apply_recoil(utils.recoil_state, delta_time)
+            # Apply recoil, maintenant avec l'état du tir
+            is_shooting = utils.is_shooting()
+            cheats.apply_recoil(utils.recoil_state, delta_time, is_shooting)
 
             # Move the mouse based on the previous calculations
             mouse.move(cheats.move_x, cheats.move_y)
